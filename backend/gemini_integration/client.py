@@ -1,25 +1,51 @@
 import requests, os
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+GEMINI_API_KEY = ''
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+
 
 def analyze_text(prompt: str):
-    payload = {"contents": [{"parts": [{"text": prompt}]}]}
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}]
+    }
     r = requests.post(f"{GEMINI_URL}?key={GEMINI_API_KEY}", json=payload)
+    print("STATUS:", r.status_code)
+    print("RESPONSE:", r.text)  # 👈 this shows you the real issue
     try:
-        return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        return "Error: Gemini API response invalid."
+        data = r.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        return f"Error: {data.get('error', str(e))}"
+
 
 def analyze_media(file_path: str, prompt="Analyze this media"):
-    # ⚠️ Simplified — in reality you need Gemini File API
-    files = {"file": open(file_path, "rb")}
-    r = requests.post(f"https://gemini.fake-upload?key={GEMINI_API_KEY}", files=files)
-    file_id = r.json().get("file_id", "demo123")
+    # 1. Upload file to Gemini File API
+    upload_url = f"https://generativelanguage.googleapis.com/upload/v1beta/files?key={GEMINI_API_KEY}"
+    with open(file_path, "rb") as f:
+        r = requests.post(upload_url, files={"file": f})
+    if r.status_code != 200:
+        return f"Upload error: {r.text}"
 
-    payload = {"contents": [{"parts": [{"fileData": {"fileUri": file_id}}, {"text": prompt}]}]}
-    r2 = requests.post(f"{GEMINI_URL}?key={GEMINI_API_KEY}", json=payload)
+    file_data = r.json()
+    file_uri = file_data.get("file", {}).get("uri")
+    if not file_uri:
+        return f"Upload failed: {file_data}"
+
+    # 2. Generate content with file reference
+    payload = {
+        "contents": [{
+            "role": "user",
+            "parts": [
+                {"fileData": {"fileUri": file_uri}},
+                {"text": prompt}
+            ]
+        }]
+    }
+    gen_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    r2 = requests.post(gen_url, json=payload)
+
     try:
-        return r2.json()["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        return "Error: Gemini API media analysis failed."
+        data = r2.json()
+        return data["candidates"][0]["content"]["parts"][0]["text"]
+    except Exception as e:
+        return f"Error: {data if 'data' in locals() else str(e)}"

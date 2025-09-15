@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+from farm.models import Farm
 from .models import HealthQuestion, HealthResponse
 from farmers.models import Farmer
 from gemini_integration.client import analyze_text, analyze_media
@@ -12,25 +14,34 @@ def get_questions(request):
 @csrf_exempt
 def submit_response(request):
     if request.method == "POST":
-        farmer_id = request.POST.get("farmer_id")
-        question_id = request.POST.get("question_id")
+        farm_id = request.POST.get("farm_id")
+    
         text = request.POST.get("answer_text")
+        print(text)
         audio = request.FILES.get("answer_audio")
         video = request.FILES.get("answer_video")
 
-        farmer = Farmer.objects.get(id=farmer_id)
-        question = HealthQuestion.objects.get(id=question_id)
+        farm = Farm.objects.get(id=farm_id)
+       
 
         response = HealthResponse.objects.create(
-            farmer=farmer, question=question,
+            farm=farm, 
             answer_text=text, answer_audio=audio, answer_video=video
         )
+        print(response)
+
+        question = list(HealthQuestion.objects.all().values())
+
+        questions=""
+        
+        for q in question:
+            questions += q["text"] + " "
 
         if text:
             prompt = f"""
-    You are analyzing a farmer’s response to a biosecurity question. 
+    You are analyzing a farmer’s response to the following biosecurity questions. 
     Farm type: Pig and Poultry.
-    Question: "{question.text}"
+    Question: "{questions}"
     Farmer’s response: "{text}"
 
     Tasks:
@@ -45,8 +56,8 @@ def submit_response(request):
             gemini_out = analyze_text(prompt)
         elif audio:
             prompt = f"""
-    You are analyzing a farmer’s audio response to the biosecurity question:
-    "{question.text}"
+    You are analyzing a farmer’s audio response to the following biosecurity questions:
+    "{questions}"
 
     Tasks:
     1. Transcribe the audio.
@@ -58,7 +69,7 @@ def submit_response(request):
         elif video:
             prompt = f"""
     You are analyzing a farmer’s daily farm inspection video and analyze it against the following set of questions:
-    "{question.text}"
+    "{questions}"
 
     Tasks:
     1. Observe and extract answers to the above questions from both visuals and narration.

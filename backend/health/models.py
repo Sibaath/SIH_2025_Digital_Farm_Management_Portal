@@ -1,12 +1,12 @@
 from django.db import models
+from farm.models import Farm
 from farmers.models import Farmer
 
 class HealthQuestion(models.Model):
     text = models.TextField()
 
 class HealthResponse(models.Model):
-    farmer = models.ForeignKey(Farmer, on_delete=models.CASCADE)
-    question = models.ForeignKey(HealthQuestion, on_delete=models.CASCADE)
+    farm = models.ForeignKey(Farm, on_delete=models.CASCADE, null=True, blank=True)
     answer_text = models.TextField(null=True, blank=True)
     answer_audio = models.FileField(upload_to="audio/", null=True, blank=True)
     answer_video = models.FileField(upload_to="video/", null=True, blank=True)
