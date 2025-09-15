@@ -8,6 +8,7 @@ class CustomTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final bool enabled;
   final String? Function(String?)? validator;
+  final Widget? suffixIcon; // Add this line
 
   const CustomTextField({
     super.key,
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.enabled = true,
     this.validator,
+    this.suffixIcon, // Add this line
   });
 
   @override
@@ -31,6 +33,7 @@ class CustomTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: Icon(icon, color: Colors.green),
+        suffixIcon: suffixIcon, // Add this line
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.green),

@@ -16,7 +16,7 @@ class WelcomePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Image.asset('assets/images/welcome.png', height: 250), // Add a welcome image
+            Image.asset('assets/images/icon.png', height: 250), // Add a welcome image
             const SizedBox(height: 40),
             const Text(
               'Welcome to AgriGuard',

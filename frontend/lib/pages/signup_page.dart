@@ -4,7 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../services/auth_service.dart';
-import './homepage.dart'; // Create this page later
+import './homepage.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -149,23 +149,17 @@ class _SignUpPageState extends State<SignUpPage> {
                 validator: (value) => value == null || value.length < 6 ? 'Password must be at least 6 characters' : null,
               ),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      controller: _locationController,
-                      labelText: 'Location',
-                      icon: Icons.location_on,
-                      enabled: false,
-                      validator: (value) => value == null || value.isEmpty ? 'Please get your location' : null,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.my_location, color: Colors.green),
-                    onPressed: _getLocation,
-                  ),
-                ],
+              // Corrected location text field
+              CustomTextField(
+                controller: _locationController,
+                labelText: 'Location',
+                icon: Icons.location_on,
+                enabled: false,
+                validator: (value) => value == null || value.isEmpty ? 'Please get your location' : null,
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.my_location, color: Colors.green),
+                  onPressed: _getLocation,
+                ),
               ),
               const SizedBox(height: 30),
               _isLoading
