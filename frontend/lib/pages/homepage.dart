@@ -81,6 +81,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:frontend/pages/feedback_screen.dart';
 import 'dashboard_page.dart';
 import 'daily_scan_page.dart';
 import 'contacts_page.dart';
@@ -101,7 +102,8 @@ class _HomePageState extends State<HomePage> {
     DashboardPage(),
     DailyScanPage(),
     ContactsPage(),
-    HeatmapPage(), // Add the new page here
+    HeatmapPage(),
+    FeedbackScreen(),// Add the new page here
   ];
 
   // This function is called when a user taps a navigation bar item
@@ -154,6 +156,10 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.map),
             label: 'Heatmap', // Add the new label for the heatmap page
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.feedback),
+            label: 'Feedback',
           ),
         ],
         currentIndex: _selectedIndex,
