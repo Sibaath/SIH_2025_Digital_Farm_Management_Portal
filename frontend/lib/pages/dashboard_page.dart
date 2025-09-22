@@ -2326,6 +2326,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:frontend/l10n/app_localizations.dart';
 import 'daily_scan_page.dart';
 import 'contacts_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -2390,6 +2391,8 @@ class _UploadAndProcessingDialogState extends State<_UploadAndProcessingDialog> 
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     if (!_submitted) {
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -2398,9 +2401,9 @@ class _UploadAndProcessingDialogState extends State<_UploadAndProcessingDialog> 
           children: [
             Icon(Icons.check_circle_outline, color: Colors.green, size: 80),
             const SizedBox(height: 16),
-            const Text('Medical Report Submitted!', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(loc.medicalReportSubmitted, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('File: ${widget.fileName}', style: const TextStyle(color: Colors.grey)),
+            Text('${loc.fileLabel}: ${widget.fileName}', style: const TextStyle(color: Colors.grey)),
           ],
         ),
       );
@@ -2410,10 +2413,10 @@ class _UploadAndProcessingDialogState extends State<_UploadAndProcessingDialog> 
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              CircularProgressIndicator(color: Colors.green),
-              SizedBox(height: 16),
-              Text('Analyzing Medical Report with AI...', style: TextStyle(fontSize: 16)),
+            children: [
+              const CircularProgressIndicator(color: Colors.green),
+              const SizedBox(height: 16),
+              Text(loc.analyzingReport, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),
@@ -2425,7 +2428,9 @@ class _UploadAndProcessingDialogState extends State<_UploadAndProcessingDialog> 
 }
 
 class DashboardPage extends StatefulWidget {
-  const DashboardPage({super.key});
+  final Function(Locale) onLanguageChanged;
+
+  const DashboardPage({super.key, required this.onLanguageChanged});
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
@@ -2454,6 +2459,8 @@ class _DashboardPageState extends State<DashboardPage> {
   ];
 
   void _showOptionsDialog() {
+    final loc = AppLocalizations.of(context)!;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -2466,14 +2473,11 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                'Add New',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              Text(loc.addNew, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               _buildModalButton(
                 icon: Icons.add_box,
-                text: 'Add New Compartment',
+                text: loc.addNewCompartment,
                 onPressed: () {
                   Navigator.pop(context);
                   _showAddCompartmentDialog();
@@ -2482,13 +2486,12 @@ class _DashboardPageState extends State<DashboardPage> {
               const SizedBox(height: 10),
               _buildModalButton(
                 icon: Icons.upload_file,
-                text: 'Upload Medical Report',
+                text: loc.uploadMedicalReport,
                 onPressed: () {
                   Navigator.pop(context);
                   _uploadMedicalReport();
                 },
               ),
-              const SizedBox(height: 10),
             ],
           ),
         );
@@ -2511,24 +2514,25 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showAddCompartmentDialog() {
-    final TextEditingController typeController = TextEditingController();
-    final TextEditingController maleCountController = TextEditingController();
-    final TextEditingController femaleCountController = TextEditingController();
-    final TextEditingController noteController = TextEditingController();
+    final loc = AppLocalizations.of(context)!;
+    final typeController = TextEditingController();
+    final maleCountController = TextEditingController();
+    final femaleCountController = TextEditingController();
+    final noteController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add New Compartment'),
+          title: Text(loc.addNewCompartment),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Animal Type',
-                    prefixIcon: Icon(Icons.pets, color: Colors.green),
+                  decoration: InputDecoration(
+                    labelText: loc.animalType,
+                    prefixIcon: const Icon(Icons.pets, color: Colors.green),
                   ),
                   items: const [
                     DropdownMenuItem(value: 'Poultry', child: Text('Poultry')),
@@ -2537,16 +2541,27 @@ class _DashboardPageState extends State<DashboardPage> {
                   ],
                   onChanged: (value) => typeController.text = value ?? '',
                 ),
-                TextField(controller: maleCountController, decoration: const InputDecoration(labelText: 'Male Count', prefixIcon: Icon(Icons.male, color: Colors.blue)), keyboardType: TextInputType.number),
-                TextField(controller: femaleCountController, decoration: const InputDecoration(labelText: 'Female Count', prefixIcon: Icon(Icons.female, color: Colors.pink)), keyboardType: TextInputType.number),
-                TextField(controller: noteController, decoration: const InputDecoration(labelText: 'Note', prefixIcon: Icon(Icons.notes, color: Colors.grey))),
+                TextField(
+                  controller: maleCountController,
+                  decoration: InputDecoration(labelText: loc.maleCount, prefixIcon: const Icon(Icons.male, color: Colors.blue)),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: femaleCountController,
+                  decoration: InputDecoration(labelText: loc.femaleCount, prefixIcon: const Icon(Icons.female, color: Colors.pink)),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: noteController,
+                  decoration: InputDecoration(labelText: loc.note, prefixIcon: const Icon(Icons.notes, color: Colors.grey)),
+                ),
               ],
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(loc.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -2563,10 +2578,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 });
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('New compartment added successfully!')),
+                  SnackBar(content: Text(loc.compartmentAdded)),
                 );
               },
-              child: const Text('Add'),
+              child: Text(loc.add),
             ),
           ],
         );
@@ -2576,6 +2591,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _uploadMedicalReport() async {
     final XFile? file = await _picker.pickMedia();
+    final loc = AppLocalizations.of(context)!;
+
     if (file != null) {
       showDialog(
         context: context,
@@ -2589,24 +2606,26 @@ class _DashboardPageState extends State<DashboardPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No file selected.')),
+        SnackBar(content: Text(loc.noFileSelected)),
       );
     }
   }
 
   void _showAIAnalysisDialog(String analysisText) {
+    final loc = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('AI Analysis Complete', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text(loc.aiAnalysisComplete, style: const TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Report Name: Medical_Report.pdf', style: TextStyle(fontWeight: FontWeight.w500)),
+                Text('${loc.reportName}: Medical_Report.pdf', style: const TextStyle(fontWeight: FontWeight.w500)),
                 const SizedBox(height: 10),
-                const Text('**AI Summary:**', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('${loc.aiSummary}:', style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
                 Text(analysisText),
               ],
@@ -2615,7 +2634,7 @@ class _DashboardPageState extends State<DashboardPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Done'),
+              child: Text(loc.done),
             ),
           ],
         );
@@ -2624,29 +2643,28 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showCompartmentDetailsDialog(Compartment compartment) {
+    final loc = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
-            '${compartment.animalType} Compartment Details',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
+          title: Text('${compartment.animalType} ${loc.compartmentDetails}', style: const TextStyle(fontWeight: FontWeight.bold)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildDetailCard('Likely to be Infected', 'Low', Icons.shield, Colors.green),
-                _buildDetailCard('Needs Treatment', 'No', Icons.local_hospital, Colors.green),
-                _buildDetailCard('Compartment Health', 'Stable', Icons.favorite, Colors.green),
-                _buildDetailCard('Biosecurity Score', '95/100', Icons.monitor_heart, Colors.blue),
+                _buildDetailCard(loc.likelyInfected, loc.low, Icons.shield, Colors.green),
+                _buildDetailCard(loc.needsTreatment, loc.no, Icons.local_hospital, Colors.green),
+                _buildDetailCard(loc.compartmentHealth, loc.stable, Icons.favorite, Colors.green),
+                _buildDetailCard(loc.biosecurityScore, '95/100', Icons.monitor_heart, Colors.blue),
               ],
             ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Close'),
+              child: Text(loc.close),
             ),
           ],
         );
@@ -2695,29 +2713,25 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welcome, Farmer!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
+            Text(loc.welcomeFarmer, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
-            const Text(
-              'Your farm at a glance.',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+            Text(loc.farmAtGlance, style: const TextStyle(fontSize: 16, color: Colors.grey)),
             const SizedBox(height: 20),
-            _buildSectionHeader('Farm Compartments'),
+            _buildSectionHeader(loc.farmCompartments),
             _buildCompartmentList(),
             const SizedBox(height: 24),
-            _buildSectionHeader('Key Statistics'),
+            _buildSectionHeader(loc.keyStatistics),
             _buildStatisticsSection(),
             const SizedBox(height: 24),
-            _buildSectionHeader('Quick Actions'),
+            _buildSectionHeader(loc.quickActions),
             _buildQuickActionsSection(context),
           ],
         ),
@@ -2731,140 +2745,89 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildStatisticsSection() {
+    final loc = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         _buildStatCard(
-          'Health Score',
+          loc.healthScore,
           '85%',
           Icons.favorite,
           Colors.green,
           isHighlighted: true,
         ),
         const SizedBox(height: 8),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
-            'The Health Score is calculated based on daily scan compliance, recent alerts, and biosecurity protocols.',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            loc.healthScoreDescription,
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
         const SizedBox(height: 16),
         _buildStatCard(
-          'Daily Scans Completed',
-          '7/7 Days',
+          loc.dailyScansCompleted,
+          '7/7 ${loc.days}',
           Icons.check_circle,
           Colors.blue,
         ),
         const SizedBox(height: 16),
         _buildStatCard(
-          'Recent Alerts',
-          'No new alerts',
-          Icons.warning,
+          loc.totalAnimals,
+          '140',
+          Icons.pets,
           Colors.orange,
         ),
       ],
     );
   }
 
+  Widget _buildStatCard(String title, String value, IconData icon, Color color, {bool isHighlighted = false}) {
+    return Card(
+      elevation: isHighlighted ? 8 : 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Icon(icon, size: 40, color: color),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        trailing: Text(value, style: const TextStyle(fontSize: 18)),
+      ),
+    );
+  }
+
   Widget _buildQuickActionsSection(BuildContext context) {
-    return Column(
+    final loc = AppLocalizations.of(context)!;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildQuickActionButton(
-          context,
-          'Perform Daily Scan',
-          Icons.camera_alt,
-          Colors.lightGreen,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const DailyScanPage()),
-            );
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildQuickActionButton(
-          context,
-          'View Biosecurity Guidelines',
-          Icons.book,
-          Colors.teal,
-          () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tapped on View Biosecurity Guidelines')),
-            );
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildQuickActionButton(
-          context,
-          'Find Veterinarians',
-          Icons.people,
-          Colors.lightBlue,
-          () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContactsPage()),
-            );
-          },
-        ),
+        _buildQuickActionButton(Icons.scanner, loc.dailyScan, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const DailyScanPage()));
+        }),
+        _buildQuickActionButton(Icons.contacts, loc.contacts, () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => ContactsPage(onLanguageChanged: widget.onLanguageChanged)));
+        }),
+        _buildQuickActionButton(Icons.settings, loc.settings, () {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loc.settingsClicked)));
+        }),
       ],
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color, {bool isHighlighted = false}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isHighlighted ? const Color.fromARGB(255, 195, 215, 225) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: isHighlighted ? Border.all(color: color, width: 2) : null,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(isHighlighted ? 0.4 : 0.2),
-            spreadRadius: isHighlighted ? 3 : 2,
-            blurRadius: isHighlighted ? 8 : 4,
-            offset: const Offset(0, 3),
+  Widget _buildQuickActionButton(IconData icon, String label, VoidCallback onPressed) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(16),
+            backgroundColor: Colors.green,
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Icon(icon, size: 40, color: color),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: color),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          child: Icon(icon, size: 32, color: Colors.white),
         ),
-      ),
-    );
-  }
-
-  Widget _buildQuickActionButton(BuildContext context, String title, IconData icon, Color color, VoidCallback onPressed) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(title),
-      style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: color,
-        minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 3,
-      ),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 
@@ -2881,6 +2844,8 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget _buildCompartmentCard(Compartment compartment) {
+    final loc = AppLocalizations.of(context)!;
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -2897,15 +2862,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     Icon(compartment.icon, size: 24, color: compartment.color),
                     const SizedBox(width: 8),
-                    Text(
-                      compartment.animalType,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
+                    Text(compartment.animalType, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 TextButton(
                   onPressed: () => _showCompartmentDetailsDialog(compartment),
-                  child: const Text('View Details'),
+                  child: Text(loc.viewDetails),
                 ),
               ],
             ),
@@ -2916,18 +2878,15 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 const Icon(Icons.male, size: 20),
                 const SizedBox(width: 8),
-                Text('Male: ${compartment.maleCount}'),
+                Text('${loc.male}: ${compartment.maleCount}'),
                 const SizedBox(width: 20),
                 const Icon(Icons.female, size: 20),
                 const SizedBox(width: 8),
-                Text('Female: ${compartment.femaleCount}'),
+                Text('${loc.female}: ${compartment.femaleCount}'),
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'Note: ${compartment.note}',
-              style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
-            ),
+            Text('${loc.noteLabel}: ${compartment.note}', style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.grey)),
           ],
         ),
       ),
