@@ -2329,6 +2329,7 @@ import 'package:flutter/material.dart';
 import 'daily_scan_page.dart';
 import 'contacts_page.dart';
 import 'package:image_picker/image_picker.dart';
+import 'learning.dart';
 
 // A data model for a farm compartment
 class Compartment {
@@ -2787,12 +2788,15 @@ class _DashboardPageState extends State<DashboardPage> {
           'View Biosecurity Guidelines',
           Icons.book,
           Colors.teal,
-          () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tapped on View Biosecurity Guidelines')),
+              () {
+            // Navigate to LearningResourcePage
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LearningResourcePage()),
             );
           },
         ),
+
         const SizedBox(height: 12),
         _buildQuickActionButton(
           context,
