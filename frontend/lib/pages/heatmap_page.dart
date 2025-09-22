@@ -315,10 +315,11 @@
 // }
 
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'news_screen.dart';
+
 
 class HeatmapPage extends StatefulWidget {
   const HeatmapPage({super.key});
@@ -361,39 +362,48 @@ class _HeatmapPageState extends State<HeatmapPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text(
-            'Disease Outbreak Heatmap',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          // Styled Dropdown for filtering
-          _buildStyledDropdown(),
-          const SizedBox(height: 20),
-          // Interactive Map with Heatmap Markers
-          _buildMapContainer(),
-          const SizedBox(height: 30),
-          // Statistics and Insights Section with a responsive grid
-          const Text(
-            'Statistics & Insights',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const Divider(),
-          _buildStatisticsGrid(),
-          const SizedBox(height: 30),
-          // Information for Admin
-          const Text(
-            'Information for Admin',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const Divider(),
-          _buildAdminInfoCard(),
-        ],
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Disease Outbreak Heatmap',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            _buildStyledDropdown(),
+            const SizedBox(height: 20),
+            _buildMapContainer(),
+            const SizedBox(height: 30),
+            const Text(
+              'Statistics & Insights',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            _buildStatisticsGrid(),
+            const SizedBox(height: 30),
+            const Text(
+              'Information for Admin',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            _buildAdminInfoCard(),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NewsScreen()),
+          );
+        },
+        backgroundColor: Colors.green,
+        child: const Icon(Icons.newspaper),
+        tooltip: 'Go to News',
       ),
     );
   }
@@ -550,7 +560,6 @@ class _HeatmapPageState extends State<HeatmapPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // This Expanded widget is the key fix
               Expanded(
                 child: Text(
                   title,
@@ -573,7 +582,6 @@ class _HeatmapPageState extends State<HeatmapPage> {
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
           const SizedBox(height: 16),
-          // Simulated Bar Chart
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

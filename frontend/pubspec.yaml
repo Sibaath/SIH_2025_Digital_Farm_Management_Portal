@@ -46,6 +46,7 @@ dependencies:
   image_picker: ^1.1.2
   youtube_player_flutter: ^8.1.1
   flutter_staggered_animations: ^1.1.0
+  flip_card: ^0.6.0
   
 
 dev_dependencies:
@@ -75,6 +76,11 @@ flutter:
     - assets/images/icon.png
     - assets/docs/
     - assets/images/doctor.jpeg
+    - assets/images/bird.jpg
+    - assets/images/hen.jpg
+    - assets/images/chicken.jpg
+    - assets/images/pig.jpg
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
