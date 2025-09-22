@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'booking_page.dart';
+import 'package:frontend/l10n/app_localizations.dart';
+import '../widgets/language_dropdown.dart';
 
-// The imageUrl property has been removed from the Doctor class
 class Doctor {
   final String name;
   final String specialization;
@@ -15,7 +16,7 @@ class Doctor {
     required this.rating,
   });
 
-  String get imageUrl => "assets/images/doctor.jpeg"; // Placeholder image path
+  String get imageUrl => "assets/images/doctor.jpeg";
 }
 
 class Appointment {
@@ -31,35 +32,16 @@ class Appointment {
 }
 
 class ContactsPage extends StatefulWidget {
-  const ContactsPage({super.key});
+  final Function(Locale) onLanguageChanged;
+
+  const ContactsPage({super.key, required this.onLanguageChanged});
 
   @override
   _ContactsPageState createState() => _ContactsPageState();
 }
 
 class _ContactsPageState extends State<ContactsPage> {
-  // Dummy data updated to reflect the change in the Doctor class
-  final List<Doctor> _availableDoctors = [
-    Doctor(
-      name: 'Dr. John Doe',
-      specialization: 'Avian Biosecurity Expert',
-      location: 'Madurai',
-      rating: 4.8,
-    ),
-    Doctor(
-      name: 'Dr. Jane Smith',
-      specialization: 'Swine Health Specialist',
-      location: 'Coimbatore',
-      rating: 4.9,
-    ),
-    Doctor(
-      name: 'Dr. Emily White',
-      specialization: 'General Veterinary Care',
-      location: 'Trichy',
-      rating: 4.5,
-    ),
-  ];
-
+  late List<Doctor> _availableDoctors;
   final List<Appointment> _bookedAppointments = [];
 
   void _addAppointment(Appointment newAppointment) {
@@ -69,20 +51,60 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final loc = AppLocalizations.of(context)!;
+
+    // Initialize doctors with localized names and specializations
+    _availableDoctors = [
+      Doctor(
+        name: loc.doctorJohnDoe,
+        specialization: loc.avianExpert,
+        location: loc.madurai,
+        rating: 4.8,
+      ),
+      Doctor(
+        name: loc.doctorJaneSmith,
+        specialization: loc.swineSpecialist,
+        location: loc.coimbatore,
+        rating: 4.9,
+      ),
+      Doctor(
+        name: loc.doctorEmilyWhite,
+        specialization: loc.generalVeterinary,
+        location: loc.trichy,
+        rating: 4.5,
+      ),
+    ];
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: <Widget>[
-        _buildSectionHeader(context, "Veterinarians Nearby"),
-        _buildDoctorList(),
-        if (_bookedAppointments.isNotEmpty)
-          _buildSectionHeader(context, "Booked Appointments"),
-        if (_bookedAppointments.isNotEmpty)
-          _buildAppointmentList(),
-      ],
+    final loc = AppLocalizations.of(context)!;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(loc.veterinariansNearby),
+        backgroundColor: Colors.green,
+        actions: [
+          LanguageDropdown(
+            currentLocale: Localizations.localeOf(context),
+            onLanguageChanged: widget.onLanguageChanged,
+          ),
+        ],
+      ),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          _buildSectionHeader(loc.veterinariansNearby),
+          _buildDoctorList(),
+          if (_bookedAppointments.isNotEmpty) _buildSectionHeader(loc.bookedAppointments),
+          if (_bookedAppointments.isNotEmpty) _buildAppointmentList(),
+        ],
+      ),
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title) {
+  Widget _buildSectionHeader(String title) {
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
@@ -97,11 +119,11 @@ class _ContactsPageState extends State<ContactsPage> {
   Widget _buildDoctorList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
+        (context, index) {
           final doctor = _availableDoctors[index];
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: _buildDoctorCard(context, doctor),
+            child: _buildDoctorCard(doctor),
           );
         },
         childCount: _availableDoctors.length,
@@ -109,7 +131,7 @@ class _ContactsPageState extends State<ContactsPage> {
     );
   }
 
-  Widget _buildDoctorCard(BuildContext context, Doctor doctor) {
+  Widget _buildDoctorCard(Doctor doctor) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -131,7 +153,6 @@ class _ContactsPageState extends State<ContactsPage> {
             children: [
               CircleAvatar(
                 radius: 35,
-                // Use a local asset for the profile image
                 backgroundImage: const AssetImage('assets/images/doctor.jpeg'),
                 backgroundColor: Colors.green.shade100,
               ),
@@ -152,14 +173,14 @@ class _ContactsPageState extends State<ContactsPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 16),
+                        const Icon(Icons.star, color: Colors.amber, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           '${doctor.rating}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
-                        Icon(Icons.location_on, color: Colors.red, size: 16),
+                        const Icon(Icons.location_on, color: Colors.red, size: 16),
                         const SizedBox(width: 4),
                         Text(doctor.location),
                       ],
@@ -167,7 +188,7 @@ class _ContactsPageState extends State<ContactsPage> {
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.green, size: 20),
+              const Icon(Icons.arrow_forward_ios, color: Colors.green, size: 20),
             ],
           ),
         ),
@@ -178,7 +199,7 @@ class _ContactsPageState extends State<ContactsPage> {
   Widget _buildAppointmentList() {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
+        (context, index) {
           final appointment = _bookedAppointments[index];
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -205,20 +226,20 @@ class _ContactsPageState extends State<ContactsPage> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green),
             ),
             const SizedBox(height: 4),
-            Text(appointment.doctor.specialization, style: TextStyle(color: Colors.black87)),
+            Text(appointment.doctor.specialization, style: const TextStyle(color: Colors.black87)),
             const Divider(color: Colors.green),
             Row(
               children: [
-                Icon(Icons.calendar_today, size: 16),
+                const Icon(Icons.calendar_today, size: 16),
                 const SizedBox(width: 8),
                 Text(
                   '${appointment.date.day}/${appointment.date.month}/${appointment.date.year}',
-                  style: TextStyle(fontWeight: FontWeight.w500),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(width: 20),
-                Icon(Icons.access_time, size: 16),
+                const Icon(Icons.access_time, size: 16),
                 const SizedBox(width: 8),
-                Text(appointment.time, style: TextStyle(fontWeight: FontWeight.w500)),
+                Text(appointment.time, style: const TextStyle(fontWeight: FontWeight.w500)),
               ],
             ),
           ],

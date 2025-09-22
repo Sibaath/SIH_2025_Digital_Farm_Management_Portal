@@ -182,9 +182,13 @@ import 'package:flutter/material.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import './homepage.dart';
+import '../widgets/language_dropdown.dart';
+import '../l10n/app_localizations.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+  final Function(Locale) onLanguageChanged; 
+
+  const SignUpPage({super.key, required this.onLanguageChanged});
 
   @override
   _SignUpPageState createState() => _SignUpPageState();
@@ -199,25 +203,32 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _locationController = TextEditingController();
 
   void _getSimulatedLocation() {
-    _locationController.text = "Thiagarajar College of Engineering, Thiruppurankundram, Madurai";
+    _locationController.text =
+        "Thiagarajar College of Engineering, Thiruppurankundram, Madurai";
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Location fetched successfully!'),
+      SnackBar(
+        content: Text(AppLocalizations.of(context)!.locationFetched),
         backgroundColor: Colors.green,
       ),
     );
   }
 
   void _signUp() {
+    final loc = AppLocalizations.of(context)!;
+
     if (_formKey.currentState!.validate()) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(
+          builder: (context) => HomePage(
+            onLanguageChanged: widget.onLanguageChanged, 
+          ),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please fill all the required fields.'),
+        SnackBar(
+          content: Text(loc.fillRequiredFields),
           backgroundColor: Colors.red,
         ),
       );
@@ -226,10 +237,18 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: Text(loc.signUpTitle),
         backgroundColor: Colors.green,
+        actions: [
+          LanguageDropdown(
+            currentLocale: Localizations.localeOf(context),
+            onLanguageChanged: widget.onLanguageChanged,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
@@ -238,54 +257,60 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Create a new Account',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                loc.createNewAccount,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 30),
               CustomTextField(
                 controller: _nameController,
-                labelText: 'Full Name',
+                labelText: loc.fullName,
                 icon: Icons.person,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? loc.enterName : null,
               ),
               const SizedBox(height: 20),
               CustomTextField(
                 controller: _phoneController,
-                labelText: 'Phone Number',
+                labelText: loc.phoneNumber,
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter your phone number' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? loc.enterPhone : null,
               ),
               const SizedBox(height: 20),
               CustomTextField(
                 controller: _emailController,
-                labelText: 'Email',
+                labelText: loc.email,
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => value == null || value.isEmpty || !value.contains('@') ? 'Please enter a valid email' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty || !value.contains('@')
+                        ? loc.enterValidEmail
+                        : null,
               ),
               const SizedBox(height: 20),
               CustomTextField(
                 controller: _passwordController,
-                labelText: 'Password',
+                labelText: loc.password,
                 icon: Icons.lock,
                 isPassword: true,
-                validator: (value) => value == null || value.length < 6 ? 'Password must be at least 6 characters' : null,
+                validator: (value) =>
+                    value == null || value.length < 6 ? loc.passwordMin6 : null,
               ),
               const SizedBox(height: 20),
-              // Updated Location Text Field to be tap-enabled
               CustomTextField(
                 controller: _locationController,
-                labelText: 'Location',
+                labelText: loc.location,
                 icon: Icons.location_on,
-                validator: (value) => value == null || value.isEmpty ? 'Please get your location' : null,
-                onTap: _getSimulatedLocation, // Add this line
+                validator: (value) =>
+                    value == null || value.isEmpty ? loc.getLocation : null,
+                onTap: _getSimulatedLocation,
               ),
               const SizedBox(height: 30),
               CustomButton(
-                text: 'Sign Up',
+                text: loc.signUpButton,
                 onPressed: _signUp,
                 color: Colors.green,
               ),
