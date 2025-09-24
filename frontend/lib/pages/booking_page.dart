@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'contacts_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'contacts_page.dart'; // Import contacts_page to use the shared Doctor class.
 
 class BookingPage extends StatefulWidget {
   final Doctor doctor;
@@ -15,7 +16,7 @@ class _BookingPageState extends State<BookingPage> {
   DateTime _selectedDate = DateTime.now();
   String _selectedTime = '10:00 AM';
   bool _isReportAttached = false;
-  String _dummyPdfPath = 'assets/docs/medical_report.pdf'; // Placeholder path
+  // String _dummyPdfPath = 'assets/docs/medical_report.pdf'; // Placeholder path
 
   final List<String> _availableTimes = const [
     '10:00 AM',
@@ -56,11 +57,18 @@ class _BookingPageState extends State<BookingPage> {
     );
     widget.onAppointmentBooked(newAppointment);
 
-    // Navigate back to the contacts page
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Appointment booked successfully!')),
     );
+  }
+
+  void _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    await launchUrl(launchUri);
   }
 
   @override
@@ -83,28 +91,44 @@ class _BookingPageState extends State<BookingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundImage: AssetImage('assets/images/doctor.jpeg'),
-                      backgroundColor: Colors.green.shade100,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      widget.doctor.name,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(widget.doctor.specialization, style: TextStyle(color: Colors.grey.shade600)),
-                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.star, color: Colors.amber, size: 16),
-                        const SizedBox(width: 4),
-                        Text('${widget.doctor.rating}'),
-                        const SizedBox(width: 8),
-                        Icon(Icons.location_on, color: Colors.red, size: 16),
-                        const SizedBox(width: 4),
-                        Text(widget.doctor.location),
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: const AssetImage('assets/images/doctor.jpeg'),
+                          backgroundColor: Colors.green.shade100,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.doctor.name,
+                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(widget.doctor.specialization, style: TextStyle(color: Colors.grey.shade600)),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  const Icon(Icons.star, color: Colors.amber, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text('${widget.doctor.rating}'),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.location_on, color: Colors.red, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(widget.doctor.location),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // ADDED: Call button
+                        IconButton(
+                          icon: const Icon(Icons.phone, color: Colors.green, size: 28),
+                          onPressed: () => _makePhoneCall(widget.doctor.phoneNumber),
+                        ),
                       ],
                     ),
                   ],
@@ -125,7 +149,7 @@ class _BookingPageState extends State<BookingPage> {
             ListTile(
               leading: Icon(Icons.attach_file, color: _isReportAttached ? Colors.green : Colors.grey),
               title: const Text('Attach Medical Report (PDF)'),
-              trailing: _isReportAttached ? Icon(Icons.check_circle, color: Colors.green) : null,
+              trailing: _isReportAttached ? const Icon(Icons.check_circle, color: Colors.green) : null,
               onTap: _attachReport,
               tileColor: _isReportAttached ? Colors.green.shade50 : null,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -187,11 +211,11 @@ class _BookingPageState extends State<BookingPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Text(
                     'Date: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                    style: TextStyle(color: Colors.green),
+                    style: const TextStyle(color: Colors.green),
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: Colors.green),
+                  side: const BorderSide(color: Colors.green),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),

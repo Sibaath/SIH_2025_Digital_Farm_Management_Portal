@@ -38,7 +38,7 @@ class _SplashPageState extends State<SplashPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/logo.png', height: 150), // Add your logo here
+            Image.asset('assets/images/icon.png', height: 150), // Add your logo here
             const SizedBox(height: 20),
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.green),

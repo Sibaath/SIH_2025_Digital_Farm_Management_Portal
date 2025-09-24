@@ -49,7 +49,9 @@ dependencies:
   flutter_tts: ^4.2.3
   intl: ^0.18.1
   permission_handler: ^11.0.1
-  
+  flip_card: ^0.7.0
+  url_launcher: ^6.2.1
+  video_player: ^2.8.1
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,7 @@ flutter:
     - assets/images/icon.png
     - assets/docs/
     - assets/images/doctor.jpeg
+    - assets/videos/compartment_scan.mp4
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

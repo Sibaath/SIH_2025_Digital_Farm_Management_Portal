@@ -3,32 +3,46 @@ import 'dashboard_page.dart';
 import 'daily_scan_page.dart';
 import 'contacts_page.dart';
 import 'heatmap_page.dart';
-import 'chatbot_page.dart'; // Import the new ChatBotPage
+import 'chatbot_page.dart';
+import 'reportIssue.dart';
+import 'newsScreen.dart';
+import 'notifications_page.dart'; // Import the new notifications page
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
-  // A list of the pages to be displayed in the body of the Scaffold
   static const List<Widget> _widgetOptions = <Widget>[
     DashboardPage(),
     DailyScanPage(),
     ContactsPage(),
-    ChatBotPage(), // Add the ChatBotPage here
+    ChatBotPage(),
+    NewsScreen(),
     HeatmapPage(),
+    ReportIssuePage()
   ];
 
-  // This function is called when a user taps a navigation bar item
+  final List<Map<String, dynamic>> _drawerItems = [
+    {'title': 'Dashboard', 'icon': Icons.dashboard},
+    {'title': 'Daily Scan', 'icon': Icons.camera_alt},
+    {'title': 'Contacts', 'icon': Icons.people},
+    {'title': 'Chat', 'icon': Icons.chat_bubble},
+    {'title': 'News', 'icon': Icons.newspaper},
+    {'title': 'Heatmap', 'icon': Icons.map},
+    {'title': 'Report', 'icon': Icons.report_problem}
+  ];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    Navigator.pop(context);
   }
 
   @override
@@ -38,53 +52,76 @@ class _HomePageState extends State<HomePage> {
         title: const Text('AgriGuard'),
         backgroundColor: Colors.green,
         elevation: 0,
+        automaticallyImplyLeading: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
             onPressed: () {
-              // TODO: Navigate to notifications page
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // TODO: Implement logout functionality
-              Navigator.popUntil(context, (route) => route.isFirst);
+              // CHANGE: Navigate to the NotificationsPage
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NotificationsPage()),
+              );
             },
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const UserAccountsDrawerHeader(
+              accountName: Text(
+                'Salafaz Sadeesi',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              accountEmail: Text(
+                'salafaz.sadeesi@example.com',
+                style: TextStyle(fontSize: 14),
+              ),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  'SS',
+                  style: TextStyle(fontSize: 40, color: Colors.green),
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: Color(0xFF4CAF50),
+              ),
+            ),
+            ..._drawerItems.asMap().entries.map((entry) {
+              int index = entry.key;
+              Map<String, dynamic> item = entry.value;
+              return Column(
+                children: [
+                  ListTile(
+                    leading: Icon(item['icon']),
+                    title: Text(item['title']),
+                    selected: _selectedIndex == index,
+                    onTap: () {
+                      _onItemTapped(index);
+                    },
+                  ),
+                  const Divider(height: 1, color: Colors.grey),
+                ],
+              );
+            }).toList(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Log Out', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
+            ),
+          ],
+        ),
       ),
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.camera_alt),
-            label: 'Daily Scan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Contacts',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble), // New icon for the chatbot
-            label: 'Chat', // New label for the chatbot page
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Heatmap',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green,
-        unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // To show all items clearly
       ),
     );
   }

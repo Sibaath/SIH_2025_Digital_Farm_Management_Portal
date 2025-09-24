@@ -18,38 +18,32 @@ class ChatBotPageState extends State<ChatBotPage>
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
   
-  // Voice and TTS
   late stt.SpeechToText _speech;
   late FlutterTts _flutterTts;
   bool _isListening = false;
   String _text = '';
   Timer? _listeningTimer;
   
-  // Image picker
   final ImagePicker _picker = ImagePicker();
   
-  // Animation controllers
   late AnimationController _voiceAnimationController;
   late AnimationController _listeningAnimationController;
   late Animation<double> _voiceAnimation;
   late Animation<double> _listeningAnimation;
   
-  // Language settings
   String _currentLanguage = 'en';
   bool _isTranslateMode = false;
   
-  // Mock responses - properly formatted without asterisks
   final List<String> _mockResponses = [
     "🔍 Disease Analysis Complete!\n\nIdentified Condition: Respiratory Infection in Poultry\n\nKey Symptoms Detected:\n• Difficulty breathing\n• Nasal discharge\n• Reduced activity levels\n• Decreased feed intake\n\nRecommended Actions:\n• Isolate affected birds immediately\n• Improve ventilation in the coop\n• Contact veterinarian within 24 hours\n• Monitor temperature (normal: 105-107°F)\n• Ensure clean, fresh water supply\n• Document all symptoms for professional consultation\n\n⚠️ Important: This is AI-assisted analysis. Always consult a qualified veterinarian for proper diagnosis and treatment.",
     
     "🐷 Health Assessment Report\n\nCondition Identified: Early Stage Digestive Issues\n\nClinical Observations:\n• Reduced appetite patterns\n• Mild lethargy symptoms\n• Possible digestive discomfort\n• Temperature within normal range\n\nPrevention & Treatment:\n• Adjust feeding schedule\n• Provide probiotics in feed\n• Ensure adequate water intake\n• Monitor for 48-72 hours\n• Schedule veterinary check if symptoms persist\n• Maintain clean living environment\n• Consider stress factors (overcrowding, temperature)\n\n📋 Next Steps: Document daily observations and contact your local veterinary service for comprehensive health evaluation."
   ];
 
-  // Tamil translations for mock responses - properly formatted
   final List<String> _tamilTranslations = [
-    "🔍 நோய் பகுப்பாய்வு முடிந்தது!\n\nகண்டறியப்பட்ட நிலை: கோழிகளில் சுவாச தொற்று\n\nமுக்கிய அறிகுறிகள்:\n• சுவாசிப்பதில் சிரமம்\n• மூக்கிலிருந்து நீர்வடிதல்\n• செயல்பாட்டு அளவு குறைதல்\n• உணவு உட்கொள்ளல் குறைதல்\n\nபரிந்துரைக்கப்பட்ட நடவடிக்கைகள்:\n• பாதிக்கப்பட்ட பறவைகளை உடனடியாக தனிமைப்படுத்துங்கள்\n• கூட்டில் காற்றோட்டத்தை மேம்படுத்துங்கள்\n• 24 மணி நேரத்திற்குள் கால்நடை மருத்துவரை தொடர்பு கொள்ளுங்கள்\n• வெப்பநிலையை கண்காணிக்கவும் (சாதாரண: 105-107°F)\n• சுத்தமான, புதிய நீர் வழங்கவும்\n\n⚠️ முக்கியம்: இது AI உதவியுடன் கூடிய பகுப்பாய்வு. சரியான நோய் கண்டறிதல் மற்றும் சிகிச்சைக்கு எப்போதும் தகுதியான கால்நடை மருத்துவரை அணுகவும்.",
+    "🔍 நோய் பகுப்பாய்வு முடிந்தது!\n\nகண்டறியப்பட்ட நிலை: கோழிகளில் சுவாச தொற்று\n\nமுக்கிய அறிகுறிகள்:\n• சுவாசிப்பதில் சிரமம்\n• மூக்கிலிருந்து நீர்வடிதல்\n• செயல்பாட்டு அளவு குறைதல்\n• உணவு உட்கொள்ளல் குறைதல்\n\nபரிந்துரைக்கப்பட்ட நடவடிக்கைகள்:\n• பாதிக்கப்பட்ட பறவைகளை உடனடியாக தனிமைப்படுத்துங்கள்\n• கூட்டில் காற்றோட்டத்தை மேம்படுத்துங்கள்\n• 24 மணி நேரத்திற்குள் கால்நடை மருத்துவரை தொடர்பு கொள்ளுங்கள்\n• வெப்பநிலையை கண்காணித்து, புதிய நீர் வழங்கவும் (சாதாரண: 105-107°F)\n• தொழில்முறை ஆலோசனைக்காக அனைத்து அறிகுறிகளையும் ஆவணப்படுத்துங்கள்\n\n⚠️ முக்கியம்: இது AI உதவியுடன் கூடிய பகுப்பாய்வு. சரியான நோய் கண்டறிதல் மற்றும் சிகிச்சைக்கு எப்போதும் தகுதியான கால்நடை மருத்துவரை அணுகவும்.",
     
-    "🐷 உடல்நலம் மதிப்பீட்டு அறிக்கை\n\nகண்டறியப்பட்ட நிலை: ஆரம்ப நிலை செரிமான பிரச்சினைகள்\n\nமருத்துவ அவதானிப்புகள்:\n• பசியின்மை முறைகள்\n• மிதமான சோர்வு அறிகுறிகள்\n• சாத்தியமான செரிமான அசௌகரியம்\n• வெப்பநிலை சாதாரண வரம்பில்\n\nதடுப்பு மற்றும் சிகிச்சை:\n• உணவு அட்டவணையை சரிசெய்யுங்கள்\n• தீவனத்தில் புரோபயாடிக்ஸ் வழங்கவும்\n• போதுமான நீர் உட்கொள்ளலை உறுதிப்படுத்துங்கள்\n• 48-72 மணி நேரம் கண்காணிக்கவும்\n• அறிகுறிகள் நீடித்தால் கால்நடை மருத்துவ பரிசோதனை நிர்ணயிக்கவும்\n\n📋 அடுத்த படிகள்: தினசரி அவதானிப்புகளை ஆவணப்படுத்தி, விரிவான உடல்நலம் மதிப்பீட்டிற்காக உங்கள் உள்ளூர் கால்நடை மருத்துவ சேவையை தொடர்பு கொள்ளுங்கள்."
+    "🐷 உடல்நலம் மதிப்பீட்டு அறிக்கை\n\nகண்டறியப்பட்ட நிலை: ஆரம்ப நிலை செரிமான பிரச்சினைகள்\n\nமருத்துவ அவதானிப்புகள்:\n• பசியின்மை முறைகள்\n• மிதமான சோர்வு அறிகுறிகள்\n• சாத்தியமான செரிமான அசௌகரியம்\n• வெப்பநிலை சாதாரண வரம்பில்\n\nதடுப்பு மற்றும் சிகிச்சை:\n• உணவு அட்டவணையை சரிசெய்யுங்கள்\n• தீவனத்தில் புரோபயாடிக்ஸ் வழங்கவும்\n• போதுமான நீர் உட்கொள்ளலை உறுதிப்படுத்துங்கள்\n• 48-72 மணி நேரம் கண்காணிக்கவும்\n• அறிகுறிகள் நீடித்தால் கால்நடை மருத்துவ பரிசோதனை நிர்ணயிக்கவும்\n\n📋 அடுத்த படிகள்: தினசரி அவதானிப்புகளை ஆவணப்படுத்தி, விரிவான உடல்நலம் மதிப்பீட்டிற்காக உங்கள் உள்ளூர் கால்நடை மருத்துவ சேவையை தொடர்பு கொள்ளுங்கள்।"
   ];
 
   int _currentResponseIndex = 0;
@@ -80,7 +74,6 @@ class ChatBotPageState extends State<ChatBotPage>
       curve: Curves.easeInOut,
     );
     
-    // Welcome message
     _addMessage(ChatMessage(
       text: "🌾 Hello! I'm your AgriGuard AI assistant. I can help you identify diseases in poultry and pigs through text, voice, images, or videos. How can I assist you today?",
       isUser: false,
@@ -92,7 +85,6 @@ class ChatBotPageState extends State<ChatBotPage>
     _speech = stt.SpeechToText();
     bool available = await _speech.initialize(
       onError: (error) {
-        print('Speech recognition error: $error');
         if (mounted) {
           setState(() {
             _isListening = false;
@@ -102,7 +94,6 @@ class ChatBotPageState extends State<ChatBotPage>
         }
       },
       onStatus: (status) {
-        print('Speech recognition status: $status');
         if (status == 'notListening' && _isListening) {
           _stopListening();
         }
@@ -110,8 +101,6 @@ class ChatBotPageState extends State<ChatBotPage>
     );
     
     if (!available) {
-      print('Speech recognition not available');
-      // Show user feedback
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -151,8 +140,6 @@ class ChatBotPageState extends State<ChatBotPage>
     });
     
     _listeningAnimationController.repeat();
-    
-    // Clear existing timer
     _listeningTimer?.cancel();
     
     try {
@@ -164,7 +151,6 @@ class ChatBotPageState extends State<ChatBotPage>
               _textController.text = _text;
             });
             
-            // If we have final result, stop listening after a short delay
             if (result.finalResult && _text.isNotEmpty) {
               _listeningTimer?.cancel();
               _listeningTimer = Timer(const Duration(milliseconds: 500), () {
@@ -180,13 +166,11 @@ class ChatBotPageState extends State<ChatBotPage>
         listenMode: stt.ListenMode.confirmation,
       );
       
-      // Auto-stop after 30 seconds
       _listeningTimer = Timer(const Duration(seconds: 30), () {
         if (_isListening) _stopListening();
       });
       
     } catch (e) {
-      print('Error starting speech recognition: $e');
       _stopListening();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -220,13 +204,12 @@ class ChatBotPageState extends State<ChatBotPage>
   }
 
   String _getTamilTranslation(String originalText) {
-    // For mock purposes, return appropriate Tamil translation
     if (originalText.contains('Respiratory Infection') || originalText.contains('Disease Analysis')) {
       return _tamilTranslations[0];
     } else if (originalText.contains('Health Assessment') || originalText.contains('Digestive Issues')) {
       return _tamilTranslations[1];
     }
-    return "மன்னிக்கவும், இந்த செய்திக்கு தமிழ் மொழிபெயர்ப்பு தற்போது கிடைக்கவில்லை।"; // Sorry, Tamil translation not available for this message
+    return "மன்னிக்கவும், இந்த செய்திக்கு தமிழ் மொழிபெயர்ப்பு தற்போது கிடைக்கவில்லை।";
   }
 
   void _addMessage(ChatMessage message) {
@@ -251,27 +234,20 @@ class ChatBotPageState extends State<ChatBotPage>
   void _sendMessage(String text) {
     if (text.trim().isEmpty) return;
     
-    // Add user message
     _addMessage(ChatMessage(
       text: text,
       isUser: true,
       timestamp: DateTime.now(),
     ));
     
-    // Process response
     _processMessage(text);
-    
     _textController.clear();
   }
 
   void _processMessage(String message) {
-    // Use alternating mock responses for any question
     String response = _mockResponses[_currentResponseIndex];
-    
-    // Alternate between the two responses
     _currentResponseIndex = (_currentResponseIndex + 1) % _mockResponses.length;
     
-    // Add AI response after a short delay
     Future.delayed(const Duration(milliseconds: 1200), () {
       _addMessage(ChatMessage(
         text: response,
@@ -297,7 +273,6 @@ class ChatBotPageState extends State<ChatBotPage>
         imagePath: image.path,
       ));
       
-      // Mock image analysis response
       Future.delayed(const Duration(seconds: 2), () {
         String response = _mockResponses[_currentResponseIndex];
         _currentResponseIndex = (_currentResponseIndex + 1) % _mockResponses.length;
@@ -325,7 +300,6 @@ class ChatBotPageState extends State<ChatBotPage>
         videoPath: video.path,
       ));
       
-      // Mock video analysis response
       Future.delayed(const Duration(seconds: 3), () {
         String response = _mockResponses[_currentResponseIndex];
         _currentResponseIndex = (_currentResponseIndex + 1) % _mockResponses.length;
@@ -485,13 +459,12 @@ class ChatBotPageState extends State<ChatBotPage>
   }
 
   String _parseFormattedText(String text) {
-    // Remove markdown-style formatting for proper display
     String parsed = text
-        .replaceAll('**', '') // Remove bold markers
-        .replaceAll('*', '') // Remove italic markers
-        .replaceAll('###', '') // Remove header markers
-        .replaceAll('##', '') // Remove header markers
-        .replaceAll('#', ''); // Remove header markers
+        .replaceAll('**', '')
+        .replaceAll('*', '')
+        .replaceAll('###', '')
+        .replaceAll('##', '')
+        .replaceAll('#', '');
     
     return parsed;
   }
@@ -508,40 +481,31 @@ class ChatBotPageState extends State<ChatBotPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text(
-          'AgriGuard AI Assistant',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        elevation: 2,
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'language') {
-                _toggleLanguage();
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem<String>(
-                value: 'language',
-                child: Row(
-                  children: [
-                    Icon(Icons.language, color: Colors.grey[600]),
-                    const SizedBox(width: 8),
-                    Text(_currentLanguage == 'en' ? 'Switch to Tamil' : 'Switch to English'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+
       body: Column(
         children: [
-          // Language indicator
+          // CUSTOM HEADER with language toggle
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'AgriGuard AI Assistant',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.language),
+                  onPressed: _toggleLanguage,
+                  tooltip: _currentLanguage == 'en' ? 'Switch to Tamil' : 'Switch to English',
+                ),
+              ],
+            ),
+          ),
+          
           if (_currentLanguage == 'ta')
             Container(
               width: double.infinity,
@@ -563,7 +527,6 @@ class ChatBotPageState extends State<ChatBotPage>
               ),
             ),
           
-          // Chat messages
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
@@ -575,7 +538,6 @@ class ChatBotPageState extends State<ChatBotPage>
             ),
           ),
           
-          // Listening indicator
           if (_isListening)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -615,7 +577,6 @@ class ChatBotPageState extends State<ChatBotPage>
           
           if (_isListening) const SizedBox(height: 12),
           
-          // Input area
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -630,7 +591,6 @@ class ChatBotPageState extends State<ChatBotPage>
             ),
             child: Row(
               children: [
-                // Media upload button
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.green.shade50,
@@ -646,7 +606,6 @@ class ChatBotPageState extends State<ChatBotPage>
                 
                 const SizedBox(width: 12),
                 
-                // Text input with voice button inside
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -672,7 +631,6 @@ class ChatBotPageState extends State<ChatBotPage>
                           ),
                         ),
                         
-                        // Voice button inside text field
                         GestureDetector(
                           onTap: () {
                             if (_isListening) {
@@ -703,13 +661,14 @@ class ChatBotPageState extends State<ChatBotPage>
                           ),
                         ),
                       ],
+
+
                     ),
                   ),
                 ),
                 
                 const SizedBox(width: 12),
                 
-                // Send button
                 Container(
                   decoration: const BoxDecoration(
                     color: Colors.green,
@@ -832,50 +791,51 @@ class ChatBotPageState extends State<ChatBotPage>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            if (_currentLanguage == 'ta')
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    _isTranslateMode = !_isTranslateMode;
-                                  });
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(color: Colors.blue.shade200),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.translate,
-                                        size: 14,
-                                        color: Colors.blue.shade700,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        _isTranslateMode ? 'English' : 'தமிழ்',
-                                        style: TextStyle(
+                        Flexible(
+                          child: Row(
+                            children: [
+                              if (_currentLanguage == 'ta')
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isTranslateMode = !_isTranslateMode;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.shade50,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.blue.shade200),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.translate,
+                                          size: 14,
                                           color: Colors.blue.shade700,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _isTranslateMode ? 'English' : 'தமிழ்',
+                                          style: TextStyle(
+                                            color: Colors.blue.shade700,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                         
-                        // Read aloud button
                         InkWell(
                           onTap: () => _speak(message.text),
                           child: Container(
